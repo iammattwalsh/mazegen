@@ -86,7 +86,7 @@ def gen_maze_parent(maze_list,width,height):
 
 def gen_maze_child(maze_list,width,height,position):
     # add tiles that are N, E, S, & W to list
-    open_tiles = [
+    all_tiles = [
         # N
         (position[0], position[1] - 1),
         # E
@@ -96,41 +96,90 @@ def gen_maze_child(maze_list,width,height,position):
         # W
         (position[0] - 1, position[1]),
     ]
+    open_tiles = []
     # remove invalid tiles
-    for tile in open_tiles:
-        # remove tiles that are out of bounds on x axis
-        if tile[0] < 0 or tile [0] == width:
-            open_tiles.pop(open_tiles.index(tile))
-        # remove tiles that are out of bounds on y axis
-        elif tile[1] < 0 or tile [1] == height:
-            open_tiles.pop(open_tiles.index(tile))
-        # remove tiles that are already generated
-        elif maze_list[tile[1]][tile[0]] != []:
-            open_tiles.pop(open_tiles.index(tile))
-    # choose next move or back N
-    if len(open_tiles) == 0:
-        ...
-    else:
-        next_move = choice(open_tiles)
-        print(next_move)
-        if next_move[1] < position[1]:
-            maze_list[position[1]][position[0]].append('N')
-            maze_list[position[1] - 1][position[0]].append('S')
-            print('N')
-        elif next_move[0] > position[0]:
-            maze_list[position[1]][position[0]].append('E')
-            maze_list[position[1]][position[0] + 1].append('W')
-            print('E')
-        elif next_move[1] > position[1]:
-            maze_list[position[1]][position[0]].append('S')
-            maze_list[position[1] + 1][position[0]].append('N')
-            print('S')
-        elif next_move[0] < position[0]:
-            maze_list[position[1]][position[0]].append('W')
-            maze_list[position[1]][position[0] - 1].append('E')
-            print('W')
+    for tile in all_tiles:
+        # print(f'tile[1]::: {tile[1]} - tile[0]::: {tile[0]}')
+        # print(f'maze_list[tile[1]][tile[0]]::: {maze_list[tile[1]][tile[0]]}')
+        
+        if tile[0] >= 0 and tile[0] < width:
+            if tile[1] >= 0 and tile[1] < height:
+                if maze_list[tile[1]][tile[0]] == []:
+                    open_tiles.append(tile)
 
-    return maze_list
+
+
+
+        # # remove tiles that are out of bounds on x axis
+        # if tile[0] < 0 or tile[0] == width:
+        #     open_tiles.pop(open_tiles.index(tile))
+        # # remove tiles that are out of bounds on y axis
+        # elif tile[1] < 0 or tile[1] == height:
+        #     open_tiles.pop(open_tiles.index(tile))
+        # # remove tiles that are already generated
+        # elif maze_list[tile[1]][tile[0]] != []:
+        #     open_tiles.pop(open_tiles.index(tile))
+
+
+    # # remove invalid tiles
+    # for tile in open_tiles:
+    #     print(f'tile[1]::: {tile[1]} - tile[0]::: {tile[0]}')
+    #     print(f'maze_list[tile[1]][tile[0]]::: {maze_list[tile[1]][tile[0]]}')
+    #     # remove tiles that are out of bounds on x axis
+    #     if tile[0] < 0 or tile[0] == width:
+    #         open_tiles.pop(open_tiles.index(tile))
+    #     # remove tiles that are out of bounds on y axis
+    #     elif tile[1] < 0 or tile[1] == height:
+    #         open_tiles.pop(open_tiles.index(tile))
+    #     # remove tiles that are already generated
+    #     elif maze_list[tile[1]][tile[0]] != []:
+    #         open_tiles.pop(open_tiles.index(tile))
+    # choose next move or back
+
+
+    if finish_check(maze_list):
+        if len(open_tiles) > 0:
+            next_move = choice(open_tiles)
+            print(f'next_move::: {next_move}')
+            if next_move[1] < position[1]:
+                maze_list[position[1]][position[0]].append('N')
+                # maze_list[position[1] - 1][position[0]].append('S')
+                if position[1] - 1 > 0:
+                    maze_list[position[1] - 1][position[0]].append('S')
+                print('N')
+            elif next_move[0] > position[0]:
+                maze_list[position[1]][position[0]].append('E')
+                # maze_list[position[1]][position[0] + 1].append('W')
+                if position[0] + 1 < width:
+                    maze_list[position[1]][position[0] + 1].append('W')
+                print('E')
+            elif next_move[1] > position[1]:
+                maze_list[position[1]][position[0]].append('S')
+                # maze_list[position[1] + 1][position[0]].append('N')
+                if position[1] + 1 < height:
+                    maze_list[position[1] + 1][position[0]].append('N')
+                print('S')
+            elif next_move[0] < position[0]:
+                maze_list[position[1]][position[0]].append('W')
+                # maze_list[position[1]][position[0] - 1].append('E')
+                if position[0] - 1 > 0:
+                    maze_list[position[1]][position[0] - 1].append('E')
+                print('W')
+            print(show_maze(maze_list,width,height))
+            print('forward')
+            gen_maze_child(maze_list,width,height,next_move)
+        else:
+            print(show_maze(maze_list,width,height))
+            print('back')
+            gen_maze_child(maze_list,width,height,position)
+
+    # return maze_list
+
+def finish_check(maze_list):
+    for row in maze_list:
+        if [] in row:
+            return True
+    return False
 
 def show_maze(maze_list,width,height):
     # empty strings for maze and first row
@@ -180,6 +229,7 @@ print(start)
 print('next tiles')
 # print(gen_maze_child(maze_list,width,height,start))
 
+# print(maze_list)
 
-
-print(show_maze(gen_maze_child(maze_list,width,height,start),width,height))
+# print(show_maze(gen_maze_child(maze_list,width,height,start),width,height))
+gen_maze_child(maze_list,width,height,start)
