@@ -1,14 +1,14 @@
 from random import randint, seed, sample
 
-# width = int(input('Enter maze width: '))
-# height = int(input('Enter maze height: '))
-# maze_seed = int(input('Enter seed: '))
-# seed(maze_seed)
+width = int(input('Enter maze width: '))
+height = int(input('Enter maze height: '))
+maze_seed = input('Enter seed: ')
+seed(maze_seed)
 
 # hardcoded variables for testing
-width = 25
-height = 25
-seed(1)
+# width = 25
+# height = 25
+# seed('a')
 
 # list and dictionaries for easier reference
 directions = [
