@@ -1,112 +1,124 @@
-from random import randint, seed, sample
+from random import randint, seed, sample, choices
+from string import ascii_letters as letters, digits
+from sys import setrecursionlimit
 
-width = int(input('Enter maze width: '))
-height = int(input('Enter maze height: '))
-maze_seed = input('Enter seed: ')
-seed(maze_seed)
+class Maze():
+    def __init__(self, width, height = 0, maze_seed = ''):
+        """
+        Generates a maze from input dimensions and (optionally) a seed string.
+        - width (required) determines the width of the maze grid. Maximum 75.
+        - height (optional) determines the height of the maze grid. Defaults to equal width. Maximum 75.
+        - maze_seed (optional) allows the user to select a seed for repeatable maze generation.
+        """
+        self.directions = (1,2,4,8)
+        self.move_x = ('',0,1,'',0,'','','',-1)
+        self.move_y = ('',-1,0,'',1,'','','',0)
+        self.opposite = ('',4,8,'',1,'','','',2)
+        seed()
+        if maze_seed == '':
+            maze_seed = ''.join(choices(letters + digits, k=16))
+        seed(maze_seed)
+        if width > 75:
+            width = 75
+        if height > 75:
+            height = 75
+        elif height == 0:
+            height = width
+        if height * width * 1.6 > 1000:
+            setrecursionlimit(int(height * width * 1.6))
+        self.dims = (width, height)
+        self.maze_list = []
+        self.gen_blank()
+        self.position_start = [randint(0, self.dims[0] - 1), randint(0, self.dims[1] - 1)]
+        self.recursive_carve(self.position_start)
+        setrecursionlimit(1000)
+    
+    def gen_blank(self):
+        """
+        Generates a list of lists representing a blank grid using input dimensions.
+        """
+        for y in range(self.dims[1]):
+            this_row = []
+            for x in range(self.dims[0]):
+                this_row.append(0)
+            self.maze_list.append(this_row)
+    
+    def recursive_carve(self,position_cur):
+        """
+        Recursively generates a maze from a blank grid by carving out walls when possible.
+        """
+        cell_directions = sample(self.directions,len(self.directions))
+        for direction in cell_directions:
+            position_next = [position_cur[0] + self.move_x[direction], position_cur[1] + self.move_y[direction]]
+            if 0 <= position_next[0] < self.dims[0] and 0 <= position_next[1] < self.dims[1] and self.maze_list[position_next[1]][position_next[0]] == 0:
+                self.maze_list[position_cur[1]][position_cur[0]] += direction
+                self.maze_list[position_next[1]][position_next[0]] += self.opposite[direction]
+                self.recursive_carve(position_next)
+    
+    def __str__(self):
+        """
+        Displays maze in terminal using underscores and pipes.
+        Each tile is 2 chars wide and 1 char tall.
+        ONLY INTENDED FOR TESTING PURPOSES.
+        """
+        def check_dir(tile):
+            dirs = []
+            if tile - 8 >= 0:
+                dirs.append('W')
+                tile -= 8
+            if tile - 4 >= 0:
+                dirs.append('S')
+                tile -= 4
+            if tile - 2 >= 0:
+                dirs.append('E')
+                tile -= 2
+            if tile -1 >= 0:
+                dirs.append('N')
+            return dirs
+        
+        maze_string = ''
+        first_row = ' __'
+        for x in range(self.dims[0] - 1):
+            first_row += '___'
+        maze_string += first_row + '\n'
+        for y in range(self.dims[1]):
+            this_row = '|'
+            for x in range(self.dims[0]):
+                tile = self.maze_list[y][x]
+                if 'S' in check_dir(tile):
+                    this_row += '  '
+                else:
+                    this_row += '__'
+                if 'S' in check_dir(tile) and 'E' in check_dir(tile):
+                    this_row += ' '
+                elif 'E' in check_dir(tile):
+                    this_row += '_'
+                else:
+                    this_row += '|'
+            maze_string += this_row + '\n'
+        return maze_string
 
-# hardcoded variables for testing
-# width = 25
-# height = 25
-# seed('a')
+if __name__ == '__main__':
+    # width = int(input('Enter maze width: '))
+    # height = int(input('Enter maze height: '))
+    # maze_seed = input('Enter seed: ')
 
-# list and dictionaries for easier reference
-directions = [
-    'N',
-    'E',
-    'S',
-    'W',
-]
-move_x = {
-    'N': 0,
-    'E': 1,
-    'S': 0,
-    'W': -1,
-}
-move_y = {
-    'N': -1,
-    'E': 0,
-    'S': 1,
-    'W': 0,
-}
-opposite = {
-    'N': 'S',
-    'E': 'W',
-    'S': 'N',
-    'W': 'E',
-}
+    # hardcoded variables for testing
+    width = 25
+    height = 25
+    maze_seed = 'a'
 
-def gen_blank(width,height):
-    # empty list to hold maze
-    maze_list = []
-    # iterate through rows
-    for y in range(height):
-        # empty list to hold each row
-        this_row = []
-        # iterate through columns
-        for x in range(width):
-            # empty tile for each column as empty list
-            this_row.append([])
-        # add to maze list
-        maze_list.append(this_row)
-    return maze_list
+    # Maze generated using all available arguments
+    maze_1 = Maze(width,height,maze_seed)
+    print(maze_1.maze_list)
+    print(maze_1)
 
-def choose_start(width,height):
-    # generate (x,y) starting coordinate
-    start_x, start_y = randint(0, width - 1), randint(0, height - 1)
-    return start_x, start_y
+    # Maze generated using just width and height, seed will be randomly generated
+    maze_2 = Maze(width,height)
+    print(maze_2.maze_list)
+    print(maze_2)
 
-def show_maze(maze_list,width,height):
-    # empty strings for maze and first row
-    maze_string = ''
-    first_row = ' __'
-    # add top border and add to maze_string
-    for x in range(width - 1):
-        first_row += '___'
-    maze_string += first_row + '\n'
-    # iterate through rows
-    for y in range(height):
-        # add W wall to each row
-        this_row = '|'
-        # iterate through columns
-        for x in range(width):
-            # assign current tile to variable for simpler reading
-            tile = maze_list[y][x]
-            # add spaces if the tile has no bottom wall
-            if 'S' in tile:
-                this_row += '  '
-            # add bottom wall otherwise
-            else:
-                this_row += '__'
-            # add space if tile is missing both bottom and E walls
-            if 'S' in tile and 'E' in tile:
-                this_row += ' '
-            # add small bottom wall if tile is only missing E wall
-            elif 'E' in tile:
-                this_row += '_'
-            # add pip if tile has E wall
-            else:
-                this_row += '|'
-        # add row and new line to maze_string
-        maze_string += this_row + '\n'
-    return maze_string
-
-def carve_from(current_x,current_y,maze_list):
-    # copy shuffled directions list to a new list
-    cell_directions = sample(directions,len(directions))
-    # iterate through all 4 directions
-    for direction in cell_directions:
-        # assign coordinates of next cell to variables
-        next_x, next_y = current_x + move_x[direction], current_y + move_y[direction]
-        # check if cell is within bounds and unvisited
-        if 0 <= next_x < width and 0 <= next_y < height and maze_list[next_y][next_x] == []:
-            # append movement direction to current cell and opposite direction to next cell if valid
-            maze_list[current_y][current_x].append(direction)
-            maze_list[next_y][next_x].append(opposite[direction])
-            # run function on next cell
-            carve_from(next_x,next_y,maze_list)
-
-maze_list = gen_blank(width,height)
-start_x, start_y = choose_start(width,height)
-carve_from(start_x,start_y,maze_list)
-print(show_maze(maze_list,width,height))
+    # Maze generated using only width, height will match width, seed will be randomly generated
+    maze_3 = Maze(width)
+    print(maze_3.maze_list)
+    print(maze_3)
