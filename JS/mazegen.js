@@ -11,8 +11,6 @@ class Maze {
             }
         }
         this.rng = new Math.seedrandom(maze_seed)
-
-        // adding in dimensional limits, but they may not be necessary
         if (width > 75) {
             width = 75
         }
@@ -23,7 +21,6 @@ class Maze {
         }
         this.width = width
         this.height = height
-        // this.dims = (width, height) // saving each dim as its own attribute seems better - will delete if okay
         this.mazeArray = []
         this.genBlank()
         this.posStart = [Math.floor(this.rng() * this.width),Math.floor(this.rng() * this.height)]
@@ -45,15 +42,6 @@ class Maze {
             .map(({val}) => val)
         cellDirs.forEach(dir => {
             let posNext = [posCur[0] + this.moveX[dir], posCur[1] + this.moveY[dir]]
-            // console.log(this.mazeArray[posNext[1]][posNext[0]])
-            console.log(`x: ${posNext[0]} y: ${posNext[1]}`)
-            // console.log(0 <= posNext[0] < this.width)
-            console.log(0 <= posNext[1] && posNext[1] < this.height)
-
-            console.log(0 <= posNext[1])
-            console.log(posNext[1] < this.height)
-
-            console.log(this.mazeArray[posNext[1]][posNext[0]] === 0)
             if ((0 <= posNext[0] && posNext[0] < this.width) && (0 <= posNext[1] && posNext[1] < this.height) && (this.mazeArray[posNext[1]][posNext[0]] === 0)) {
                 if (this.mazeArray[posNext[1]][posNext[0]] === 0) {
                     this.mazeArray[posCur[1]][posCur[0]] += dir
@@ -65,9 +53,10 @@ class Maze {
     }
 }
 
-let x = new Maze(25,25,0)
-
+// let x = new Maze(25,25,0)
 // let y = new Maze(10)
+// let z = new Maze(75,75)
 
 // console.log(x.mazeArray)
 // console.log(y.mazeArray)
+// console.log(z.mazeArray)
