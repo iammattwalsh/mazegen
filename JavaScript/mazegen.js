@@ -115,14 +115,129 @@ class Maze {
             })
         })
     }
+    displayMazeNew () {
+        const gridHolder = document.getElementById('gridholder')
+        gridHolder.style.gridTemplateColumns = `repeat(${this.width}, 40px)`
+        gridHolder.style.gridTemplateRows = `repeat(${this.height}, 40px)`
+        this.mazeArray.forEach(row => {
+            row.forEach(tile => {
+                let newTile = document.createElementNS('http://www.w3.org/2000/svg','svg')
+                const tileBG = document.createElementNS('http://www.w3.org/2000/svg','rect')
+                tileBG.setAttribute('width','40px')
+                tileBG.setAttribute('height','40px')
+                tileBG.setAttribute('class','tilebg')
+                newTile.appendChild(tileBG)
+
+
+
+                const tileValEnd = [1,2,4,8]
+                const tileValStraight = [5,10]
+                const tileValCorner = [3,6,12,9]
+                const tileValT = [7,14,13,11]
+                let rotMult
+
+                if (tileValEnd.includes(tile)) {
+                    rotMult = tileValEnd.indexOf(tile)
+                    // console.log(rotMult)
+
+                    const pathFill = document.createElementNS('http://www.w3.org/2000/svg','path')
+                    pathFill.setAttribute('d','M25 0 L25 10 L30 10 L30 30 L10 30 L10 10 L15 10 L15 0 L25 0')
+                    pathFill.setAttribute('class','pathfill')
+                    newTile.appendChild(pathFill)
+
+                    const pathStroke = document.createElementNS('http://www.w3.org/2000/svg','path')
+                    pathStroke.setAttribute('d','M25 0 L25 10 L30 10 L30 30 L10 30 L10 10 L15 10 L15 0')
+                    pathStroke.setAttribute('class','pathstroke')
+                    newTile.appendChild(pathStroke)
+                    newTile.style.transform = `rotate(${rotMult * 90}deg)`
+                } else if (tileValStraight.includes(tile)) {
+                    rotMult = tileValStraight.indexOf(tile)
+                    // console.log(rotMult)
+
+                    const pathFill = document.createElementNS('http://www.w3.org/2000/svg','path')
+                    pathFill.setAttribute('class','pathfill')
+                    pathFill.setAttribute('d','M25 0 L25 40 L15 40 L15 0 L25 0')
+                    newTile.appendChild(pathFill)
+
+                    const pathStroke1 = document.createElementNS('http://www.w3.org/2000/svg','path')
+                    pathStroke1.setAttribute('class','pathstroke')
+                    pathStroke1.setAttribute('d','M25 0 L25 40')
+                    newTile.appendChild(pathStroke1)
+                    const pathStroke2 = document.createElementNS('http://www.w3.org/2000/svg','path')
+                    pathStroke2.setAttribute('class','pathstroke')
+                    pathStroke2.setAttribute('d','M15 0 L15 40')
+                    newTile.appendChild(pathStroke2)
+
+                    newTile.style.transform = `rotate(${rotMult * 90}deg)`
+                } else if (tileValCorner.includes(tile)) {
+                    rotMult = tileValCorner.indexOf(tile)
+                    // console.log(rotMult)
+
+                    const pathFill = document.createElementNS('http://www.w3.org/2000/svg','path')
+                    pathFill.setAttribute('d','M25 0 L25 15 L40 15 L40 25 L15 25 L15 0 L25 0')
+                    pathFill.setAttribute('class','pathfill')
+                    newTile.appendChild(pathFill)
+
+                    const pathStroke1 = document.createElementNS('http://www.w3.org/2000/svg','path')
+                    pathStroke1.setAttribute('class','pathstroke')
+                    pathStroke1.setAttribute('d','M25 0 L25 15 L40 15')
+                    newTile.appendChild(pathStroke1)
+                    const pathStroke2 = document.createElementNS('http://www.w3.org/2000/svg','path')
+                    pathStroke2.setAttribute('class','pathstroke')
+                    pathStroke2.setAttribute('d','M15 0 L15 25 L40 25')
+                    newTile.appendChild(pathStroke2)
+
+                    newTile.style.transform = `rotate(${rotMult * 90}deg)`
+                } else if (tileValT.includes(tile)) {
+                    rotMult = tileValT.indexOf(tile)
+                    // console.log(rotMult)
+
+                    const pathFill = document.createElementNS('http://www.w3.org/2000/svg','path')
+                    pathFill.setAttribute('d','M25 0 L25 15 L40 15 L40 25 L25 25 L25 40 L15 40 L15 0 L25 0')
+                    pathFill.setAttribute('class','pathfill')
+                    newTile.appendChild(pathFill)
+
+                    const pathStroke1 = document.createElementNS('http://www.w3.org/2000/svg','path')
+                    pathStroke1.setAttribute('class','pathstroke')
+                    pathStroke1.setAttribute('d','M15 0 L15 40')
+                    newTile.appendChild(pathStroke1)
+                    const pathStroke2 = document.createElementNS('http://www.w3.org/2000/svg','path')
+                    pathStroke2.setAttribute('class','pathstroke')
+                    pathStroke2.setAttribute('d','M25 0 L25 15 L40 15')
+                    newTile.appendChild(pathStroke2)
+                    const pathStroke3 = document.createElementNS('http://www.w3.org/2000/svg','path')
+                    pathStroke3.setAttribute('class','pathstroke')
+                    pathStroke3.setAttribute('d','M40 25 L25 25 L25 40')
+                    newTile.appendChild(pathStroke3)
+
+                    newTile.style.transform = `rotate(${rotMult * 90}deg)`
+                }
+                let rot = rotMult * 90
+                // let rot = Math.floor(this.rng() * 4) * 90
+                // newTile.style.transform = `rotate(${rot}deg)`
+                newTile.addEventListener('click', _ => {
+                    rot += 90
+                    newTile.style.transform = `rotate(${rot}deg)`
+                })
+                newTile.addEventListener('contextmenu', e => {
+                    e.preventDefault()
+                    rot -= 90
+                    newTile.style.transform = `rotate(${rot}deg)`
+                })
+
+                gridHolder.appendChild(newTile)
+            })
+        })
+    }
 }
 
-let x = new Maze(25,25,0)
-// let y = new Maze(10)
+// let x = new Maze(25,25,0)
+let y = new Maze(10)
 // let z = new Maze(75,75)
 
 // console.log(x.mazeArray)
 // console.log(y.mazeArray)
 // console.log(z.mazeArray)
 
-x.displayMaze()
+// x.displayMaze()
+y.displayMazeNew()
