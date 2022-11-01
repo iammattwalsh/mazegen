@@ -13,15 +13,31 @@ body {
 svg {
     height: 40px;
     width: 40px;
-    transition: .5s;
+    transition: .25s;
 }
 
-line {
+/* line {
     stroke: black;
     stroke-width: 5px;
     stroke-linecap: round;
+} */
+
+rect {
+    stroke: black;
+    stroke-width: 4px;
+    fill: grey;
 }
 
-circle {
-    fill: black;
+.lock {
+    fill: palevioletred;
+}
+
+.pathfill {
+    fill: white;
+}
+
+.pathstroke {
+    stroke: rebeccapurple;
+    stroke-width: 4px;
+    fill: transparent;
 }
