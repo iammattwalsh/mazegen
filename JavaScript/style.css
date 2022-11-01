@@ -22,10 +22,14 @@ svg {
     stroke-linecap: round;
 } */
 
-.tilebg {
+rect {
     stroke: black;
     stroke-width: 4px;
     fill: grey;
+}
+
+.lock {
+    fill: palevioletred;
 }
 
 .pathfill {
