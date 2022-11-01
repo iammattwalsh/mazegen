@@ -11,9 +11,8 @@ body {
 }
 
 svg {
-    height: 25px;
-    width: 25px;
-    /* border: 1px solid black; */
+    height: 40px;
+    width: 40px;
     transition: .5s;
 }
 
@@ -21,4 +20,8 @@ line {
     stroke: black;
     stroke-width: 5px;
     stroke-linecap: round;
+}
+
+circle {
+    fill: black;
 }

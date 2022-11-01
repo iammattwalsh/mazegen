@@ -53,45 +53,52 @@ class Maze {
     }
     displayMaze () {
         const gridHolder = document.getElementById('gridholder')
-        gridHolder.style.gridTemplateColumns = `repeat(${this.width}, 25px)`
-        gridHolder.style.gridTemplateRows = `repeat(${this.height}, 25px)`
+        gridHolder.style.gridTemplateColumns = `repeat(${this.width}, 40px)`
+        gridHolder.style.gridTemplateRows = `repeat(${this.height}, 40px)`
         this.mazeArray.forEach(row => {
             row.forEach(tile => {
                 let newTile = document.createElementNS('http://www.w3.org/2000/svg','svg')
                 if (tile >= 8) {
                     tile -= 8
                     const lineW = document.createElementNS('http://www.w3.org/2000/svg','line')
-                    lineW.setAttribute('x1', 13)
-                    lineW.setAttribute('y1', 13)
+                    lineW.setAttribute('x1', 20)
+                    lineW.setAttribute('y1', 20)
                     lineW.setAttribute('x2', 0)
-                    lineW.setAttribute('y2', 13)
+                    lineW.setAttribute('y2', 20)
                     newTile.appendChild(lineW)
                 }
                 if (tile >= 4) {
                     tile -= 4
                     const lineS = document.createElementNS('http://www.w3.org/2000/svg','line')
-                    lineS.setAttribute('x1', 13)
-                    lineS.setAttribute('y1', 13)
-                    lineS.setAttribute('x2', 13)
-                    lineS.setAttribute('y2', 25)
+                    lineS.setAttribute('x1', 20)
+                    lineS.setAttribute('y1', 20)
+                    lineS.setAttribute('x2', 20)
+                    lineS.setAttribute('y2', 40)
                     newTile.appendChild(lineS)
                 }
                 if (tile >= 2) {
                     tile -= 2
                     const lineE = document.createElementNS('http://www.w3.org/2000/svg','line')
-                    lineE.setAttribute('x1', 13)
-                    lineE.setAttribute('y1', 13)
-                    lineE.setAttribute('x2', 25)
-                    lineE.setAttribute('y2', 13)
+                    lineE.setAttribute('x1', 20)
+                    lineE.setAttribute('y1', 20)
+                    lineE.setAttribute('x2', 40)
+                    lineE.setAttribute('y2', 20)
                     newTile.appendChild(lineE)
                 }
                 if (tile >= 1) {
                     const lineN = document.createElementNS('http://www.w3.org/2000/svg','line')
-                    lineN.setAttribute('x1', 13)
-                    lineN.setAttribute('y1', 13)
-                    lineN.setAttribute('x2', 13)
+                    lineN.setAttribute('x1', 20)
+                    lineN.setAttribute('y1', 20)
+                    lineN.setAttribute('x2', 20)
                     lineN.setAttribute('y2', 0)
                     newTile.appendChild(lineN)
+                }
+                if (newTile.childElementCount === 1) {
+                    const center = document.createElementNS('http://www.w3.org/2000/svg','circle')
+                    center.setAttribute('cx', 20)
+                    center.setAttribute('cy', 20)
+                    center.setAttribute('r', 5)
+                    newTile.appendChild(center)
                 }
                 let rot = Math.floor(this.rng() * 4) * 90
                 newTile.style.transform = `rotate(${rot}deg)`
