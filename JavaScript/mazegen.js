@@ -23,6 +23,7 @@ class Maze {
         this.width = width
         this.height = height
         this.mazeArray = []
+        this.tileArray = []
         this.genBlank()
         this.posStart = [Math.floor(this.rng() * this.width),Math.floor(this.rng() * this.height)]
         this.recursiveCarve(this.posStart)
@@ -60,11 +61,13 @@ class Maze {
         this.mazeArray.forEach(row => {
             row.forEach(tile => {
                 let thisTile = new Tile(tile,this)
+                this.tileArray.push(thisTile)
                 let thisTileBuilt = thisTile.build()
                 thisTileBuilt.addEventListener('click', e => {
                     if (!thisTileBuilt.lock && !e.ctrlKey) {
                         thisTile.rotCurrent += 90
                         thisTileBuilt.style.transform = `rotate(${thisTile.rotCurrent}deg)`
+                        this.checkMaze()
                     }
                 })
                 thisTileBuilt.addEventListener('contextmenu', e => {
@@ -72,13 +75,13 @@ class Maze {
                     if (!thisTileBuilt.lock && !e.ctrlKey) {
                         thisTile.rotCurrent -= 90
                         thisTileBuilt.style.transform = `rotate(${thisTile.rotCurrent}deg)`
+                        this.checkMaze()
                     }
                 })
                 thisTileBuilt.addEventListener('mousedown', e => {
                     if (e.ctrlKey) {
                         thisTileBuilt.lock = !thisTileBuilt.lock
                         lockTarget = thisTileBuilt.lock
-                        console.log(lockTarget)
                         if (thisTileBuilt.lock) {
                             thisTileBuilt.getElementsByTagName('rect')[0].setAttribute('class','lock')
                         } else {
@@ -101,7 +104,26 @@ class Maze {
         })
     }
     checkMaze () {
-        
+        let countCorrect = 0
+        this.tileArray.forEach(tile => {
+            let rotCurrent = (tile.rotCurrent % 360) / 90
+            while (rotCurrent < 0) {
+                rotCurrent += 4
+            }
+            if (tile.type === 'straight') {
+                rotCurrent %= 2
+            }
+            if (tile.rotCorrect === rotCurrent) {
+                countCorrect++
+            } else {
+            }
+        })
+        console.log(countCorrect)
+        if (countCorrect === (this.width * this.height)) {
+            console.log(true)
+        } else [
+            console.log(false)
+        ]
     }
 }
 
@@ -209,6 +231,6 @@ let y = new Maze(10)
 // x.displayMaze()
 y.displayMaze()
 console.log(y.mazeSeed)
-
+// y.checkMaze()
 
 // tNTPxUGb12vCRnez -- seed that previously contained 4-way intersection
