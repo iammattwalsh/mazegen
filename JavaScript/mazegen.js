@@ -94,14 +94,15 @@ class Maze {
                     newTile.appendChild(lineN)
                 }
                 let rot = Math.floor(this.rng() * 4) * 90
-                let rotPlus = rot + 90
-                newTile.setAttribute('class', `rot${rot}`)
+                newTile.style.transform = `rotate(${rot}deg)`
                 newTile.addEventListener('click', _ => {
-                    let test = newTile.removeAttribute('class')
-                    console.log(test)
-                    newTile.setAttribute('class', `rot${rotPlus}`)
-                    rot = rotPlus
-                    rotPlus = rot < 360 ? rot + 90 : 0
+                    rot += 90
+                    newTile.style.transform = `rotate(${rot}deg)`
+                })
+                newTile.addEventListener('contextmenu', e => {
+                    e.preventDefault()
+                    rot -= 90
+                    newTile.style.transform = `rotate(${rot}deg)`
                 })
                 gridHolder.appendChild(newTile)
             })

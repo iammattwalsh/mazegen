@@ -22,23 +22,3 @@ line {
     stroke-width: 5px;
     stroke-linecap: round;
 }
-
-.rot0 {
-    transform: rotate(0deg);
-}
-
-.rot90 {
-    transform: rotate(90deg);
-}
-
-.rot180 {
-    transform: rotate(180deg);
-}
-
-.rot270 {
-    transform: rotate(270deg);
-}
-
-.rot360 {
-    transform: rotate(360deg);
-}
