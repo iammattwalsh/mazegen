@@ -51,12 +51,70 @@ class Maze {
             }
         })
     }
+    displayMaze () {
+        const gridHolder = document.getElementById('gridholder')
+        gridHolder.style.gridTemplateColumns = `repeat(${this.width}, 25px)`
+        gridHolder.style.gridTemplateRows = `repeat(${this.height}, 25px)`
+        this.mazeArray.forEach(row => {
+            row.forEach(tile => {
+                let newTile = document.createElementNS('http://www.w3.org/2000/svg','svg')
+                if (tile >= 8) {
+                    tile -= 8
+                    const lineW = document.createElementNS('http://www.w3.org/2000/svg','line')
+                    lineW.setAttribute('x1', 13)
+                    lineW.setAttribute('y1', 13)
+                    lineW.setAttribute('x2', 0)
+                    lineW.setAttribute('y2', 13)
+                    newTile.appendChild(lineW)
+                }
+                if (tile >= 4) {
+                    tile -= 4
+                    const lineS = document.createElementNS('http://www.w3.org/2000/svg','line')
+                    lineS.setAttribute('x1', 13)
+                    lineS.setAttribute('y1', 13)
+                    lineS.setAttribute('x2', 13)
+                    lineS.setAttribute('y2', 25)
+                    newTile.appendChild(lineS)
+                }
+                if (tile >= 2) {
+                    tile -= 2
+                    const lineE = document.createElementNS('http://www.w3.org/2000/svg','line')
+                    lineE.setAttribute('x1', 13)
+                    lineE.setAttribute('y1', 13)
+                    lineE.setAttribute('x2', 25)
+                    lineE.setAttribute('y2', 13)
+                    newTile.appendChild(lineE)
+                }
+                if (tile >= 1) {
+                    const lineN = document.createElementNS('http://www.w3.org/2000/svg','line')
+                    lineN.setAttribute('x1', 13)
+                    lineN.setAttribute('y1', 13)
+                    lineN.setAttribute('x2', 13)
+                    lineN.setAttribute('y2', 0)
+                    newTile.appendChild(lineN)
+                }
+                let rot = Math.floor(this.rng() * 4) * 90
+                let rotPlus = rot + 90
+                newTile.setAttribute('class', `rot${rot}`)
+                newTile.addEventListener('click', _ => {
+                    let test = newTile.removeAttribute('class')
+                    console.log(test)
+                    newTile.setAttribute('class', `rot${rotPlus}`)
+                    rot = rotPlus
+                    rotPlus = rot < 360 ? rot + 90 : 0
+                })
+                gridHolder.appendChild(newTile)
+            })
+        })
+    }
 }
 
-// let x = new Maze(25,25,0)
+let x = new Maze(25,25,0)
 // let y = new Maze(10)
 // let z = new Maze(75,75)
 
 // console.log(x.mazeArray)
 // console.log(y.mazeArray)
 // console.log(z.mazeArray)
+
+x.displayMaze()
