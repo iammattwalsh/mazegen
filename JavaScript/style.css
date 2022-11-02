@@ -24,12 +24,13 @@ svg {
 
 rect {
     stroke: black;
-    stroke-width: 4px;
-    fill: grey;
+    stroke-width: 2px;
+    fill: darkgrey;
+    transition: .25s;
 }
 
 .lock {
-    fill: palevioletred;
+    fill: dimgrey;
 }
 
 .pathfill {

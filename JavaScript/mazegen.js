@@ -24,6 +24,7 @@ class Maze {
         this.height = height
         this.mazeArray = []
         this.tileArray = []
+        this.complete = false
         this.genBlank()
         this.posStart = [Math.floor(this.rng() * this.width),Math.floor(this.rng() * this.height)]
         this.recursiveCarve(this.posStart)
@@ -62,10 +63,11 @@ class Maze {
             let thisRow = []
             row.forEach(tile => {
                 let thisTile = new Tile(tile,this)
-                thisRow.push(thisTile)
                 let thisTileBuilt = thisTile.build()
+                thisTile.element = thisTileBuilt
+                thisRow.push(thisTile)
                 thisTileBuilt.addEventListener('click', e => {
-                    if (!thisTileBuilt.lock && !e.ctrlKey) {
+                    if (!thisTile.lock && !e.ctrlKey) {
                         thisTile.rotCurrent += 90
                         thisTileBuilt.style.transform = `rotate(${thisTile.rotCurrent}deg)`
                         this.checkMaze()
@@ -73,17 +75,17 @@ class Maze {
                 })
                 thisTileBuilt.addEventListener('contextmenu', e => {
                     e.preventDefault()
-                    if (!thisTileBuilt.lock && !e.ctrlKey) {
+                    if (!thisTile.lock && !e.ctrlKey) {
                         thisTile.rotCurrent -= 90
                         thisTileBuilt.style.transform = `rotate(${thisTile.rotCurrent}deg)`
                         this.checkMaze()
                     }
                 })
                 thisTileBuilt.addEventListener('mousedown', e => {
-                    if (e.ctrlKey) {
-                        thisTileBuilt.lock = !thisTileBuilt.lock
-                        lockTarget = thisTileBuilt.lock
-                        if (thisTileBuilt.lock) {
+                    if (e.ctrlKey && !this.complete) {
+                        thisTile.lock = !thisTile.lock
+                        lockTarget = thisTile.lock
+                        if (thisTile.lock) {
                             thisTileBuilt.getElementsByTagName('rect')[0].setAttribute('class','lock')
                         } else {
                             thisTileBuilt.getElementsByTagName('rect')[0].removeAttribute('class','lock')
@@ -91,12 +93,12 @@ class Maze {
                     }
                 })
                 thisTileBuilt.addEventListener('mouseenter', e => {
-                    if ((e.buttons === 1 || e.buttons === 2) && e.ctrlKey) {
-                        thisTileBuilt.lock = lockTarget
-                        if (thisTileBuilt.lock) {
+                    if ((e.buttons === 1 || e.buttons === 2) && e.ctrlKey && !this.complete) {
+                        thisTile.lock = lockTarget
+                        if (thisTile.lock) {
                             thisTileBuilt.getElementsByTagName('rect')[0].setAttribute('class','lock')
                         } else {
-                            thisTileBuilt.getElementsByTagName('rect')[0].removeAttribute('class','lock')
+                            thisTile.getElementsByTagName('rect')[0].removeAttribute('class','lock')
                         }
                     }
                 })
@@ -107,25 +109,35 @@ class Maze {
     }
     checkMaze () {
         let countCorrect = 0
-        this.tileArray.forEach(tile => {
-            let rotCurrent = (tile.rotCurrent % 360) / 90
-            while (rotCurrent < 0) {
-                rotCurrent += 4
-            }
-            if (tile.type === 'straight') {
-                rotCurrent %= 2
-            }
-            if (tile.rotCorrect === rotCurrent) {
-                countCorrect++
-            } else {
-            }
+        this.tileArray.forEach(row => {
+            row.forEach(tile => {
+                let rotCurrent = (tile.rotCurrent % 360) / 90
+                while (rotCurrent < 0) {
+                    rotCurrent += 4
+                }
+                if (tile.type === 'straight') {
+                    rotCurrent %= 2
+                }
+                if (tile.rotCorrect === rotCurrent) {
+                    countCorrect++
+                }
+            })
         })
-        console.log(countCorrect)
+        // console.log(countCorrect)
         if (countCorrect === (this.width * this.height)) {
-            console.log(true)
-        } else [
-            console.log(false)
-        ]
+            console.log('complete')
+            this.complete = true
+            this.tileArray.forEach(row => {
+                row.forEach(tile => {
+                    tile.lock = true
+                })
+                Array.from(document.getElementsByClassName('pathfill')).forEach(el => {
+                    el.style.fill = 'deepskyblue'
+                })
+            })
+        } else {
+            console.log('incomplete')
+        }
     }
 }
 
@@ -154,6 +166,7 @@ class Tile {
         }
         this.rotCurrent = Math.floor(maze.rng() * 4) * 90
         this.lock = false
+        this.element = null
     }
     build () {
         let newTile = this.recipeBasic()
@@ -234,7 +247,7 @@ class Tile {
 // y.displayMaze()
 // z.displayMaze()
 
-let testMaze = new Maze(10)
+let testMaze = new Maze(3)
 testMaze.displayMaze()
 console.log(testMaze.mazeSeed)
 // console.log(testMaze.mazeArray)
