@@ -23,6 +23,7 @@ class Maze {
         this.width = width
         this.height = height
         this.mazeArray = []
+        this.tileArray = []
         this.genBlank()
         this.posStart = [Math.floor(this.rng() * this.width),Math.floor(this.rng() * this.height)]
         this.recursiveCarve(this.posStart)
@@ -58,13 +59,16 @@ class Maze {
         gridHolder.style.gridTemplateRows = `repeat(${this.height}, 40px)`
         let lockTarget
         this.mazeArray.forEach(row => {
+            let thisRow = []
             row.forEach(tile => {
                 let thisTile = new Tile(tile,this)
+                thisRow.push(thisTile)
                 let thisTileBuilt = thisTile.build()
                 thisTileBuilt.addEventListener('click', e => {
                     if (!thisTileBuilt.lock && !e.ctrlKey) {
                         thisTile.rotCurrent += 90
                         thisTileBuilt.style.transform = `rotate(${thisTile.rotCurrent}deg)`
+                        this.checkMaze()
                     }
                 })
                 thisTileBuilt.addEventListener('contextmenu', e => {
@@ -72,13 +76,13 @@ class Maze {
                     if (!thisTileBuilt.lock && !e.ctrlKey) {
                         thisTile.rotCurrent -= 90
                         thisTileBuilt.style.transform = `rotate(${thisTile.rotCurrent}deg)`
+                        this.checkMaze()
                     }
                 })
                 thisTileBuilt.addEventListener('mousedown', e => {
                     if (e.ctrlKey) {
                         thisTileBuilt.lock = !thisTileBuilt.lock
                         lockTarget = thisTileBuilt.lock
-                        console.log(lockTarget)
                         if (thisTileBuilt.lock) {
                             thisTileBuilt.getElementsByTagName('rect')[0].setAttribute('class','lock')
                         } else {
@@ -87,7 +91,7 @@ class Maze {
                     }
                 })
                 thisTileBuilt.addEventListener('mouseenter', e => {
-                    if ((e.buttons === 1 || e.buttons === 3) && e.ctrlKey) {
+                    if ((e.buttons === 1 || e.buttons === 2) && e.ctrlKey) {
                         thisTileBuilt.lock = lockTarget
                         if (thisTileBuilt.lock) {
                             thisTileBuilt.getElementsByTagName('rect')[0].setAttribute('class','lock')
@@ -98,10 +102,30 @@ class Maze {
                 })
                 gridHolder.appendChild(thisTileBuilt)
             })
+            this.tileArray.push(thisRow)
         })
     }
     checkMaze () {
-        
+        let countCorrect = 0
+        this.tileArray.forEach(tile => {
+            let rotCurrent = (tile.rotCurrent % 360) / 90
+            while (rotCurrent < 0) {
+                rotCurrent += 4
+            }
+            if (tile.type === 'straight') {
+                rotCurrent %= 2
+            }
+            if (tile.rotCorrect === rotCurrent) {
+                countCorrect++
+            } else {
+            }
+        })
+        console.log(countCorrect)
+        if (countCorrect === (this.width * this.height)) {
+            console.log(true)
+        } else [
+            console.log(false)
+        ]
     }
 }
 
@@ -199,7 +223,7 @@ class Tile {
 }
 
 // let x = new Maze(25,25,0)
-let y = new Maze(10)
+// let y = new Maze(10)
 // let z = new Maze(75,75)
 
 // console.log(x.mazeArray)
@@ -207,8 +231,17 @@ let y = new Maze(10)
 // console.log(z.mazeArray)
 
 // x.displayMaze()
-y.displayMaze()
-console.log(y.mazeSeed)
+// y.displayMaze()
+// z.displayMaze()
+
+let testMaze = new Maze(10)
+testMaze.displayMaze()
+console.log(testMaze.mazeSeed)
+// console.log(testMaze.mazeArray)
 
 
 // tNTPxUGb12vCRnez -- seed that previously contained 4-way intersection
+
+// need ability to highlight connected sets of tiles - i.e. hover over tile holding button (shift?) and all connected tiles are highlighted
+// need ability to highlight tiles locked in invalid positions - not incorrect positions, but invalid e.g. an opening touching a wall
+// need ability to highlight connected loops - i.e. four corner tiles connected to each other to form a square loop
