@@ -68,16 +68,16 @@ class Maze {
                 thisRow.push(thisTile)
                 thisTileBuilt.addEventListener('click', e => {
                     if (!thisTile.lock && !e.ctrlKey) {
-                        thisTile.rotCurrent += 90
-                        thisTileBuilt.style.transform = `rotate(${thisTile.rotCurrent}deg)`
+                        thisTile.rotCurrent += 1
+                        thisTileBuilt.style.transform = `rotate(${thisTile.rotCurrent * 90}deg)`
                         this.checkMaze()
                     }
                 })
                 thisTileBuilt.addEventListener('contextmenu', e => {
                     e.preventDefault()
                     if (!thisTile.lock && !e.ctrlKey) {
-                        thisTile.rotCurrent -= 90
-                        thisTileBuilt.style.transform = `rotate(${thisTile.rotCurrent}deg)`
+                        thisTile.rotCurrent -= 1
+                        thisTileBuilt.style.transform = `rotate(${thisTile.rotCurrent * 90}deg)`
                         this.checkMaze()
                     }
                 })
@@ -111,7 +111,10 @@ class Maze {
         let countCorrect = 0
         this.tileArray.forEach(row => {
             row.forEach(tile => {
-                let rotCurrent = (tile.rotCurrent % 360) / 90
+                let rotCurrent = tile.rotCurrent
+                while (rotCurrent > 3) {
+                    rotCurrent -= 4
+                }
                 while (rotCurrent < 0) {
                     rotCurrent += 4
                 }
@@ -164,7 +167,7 @@ class Tile {
             this.rotCorrect = tileValT.indexOf(tileVal)
             this.paths = this.recipeT()
         }
-        this.rotCurrent = Math.floor(maze.rng() * 4) * 90
+        this.rotCurrent = Math.floor(maze.rng() * 4)
         this.lock = false
         this.element = null
     }
@@ -182,7 +185,7 @@ class Tile {
         tileBG.setAttribute('height','40px')
         tileBG.setAttribute('class','tilebg')
         newTile.appendChild(tileBG)
-        newTile.style.transform = `rotate(${this.rotCurrent}deg)`
+        newTile.style.transform = `rotate(${this.rotCurrent * 90}deg)`
         return newTile
     }
     recipeEnd () {
