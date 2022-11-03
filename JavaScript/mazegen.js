@@ -247,7 +247,7 @@ class Tile {
 // y.displayMaze()
 // z.displayMaze()
 
-let testMaze = new Maze(3)
+let testMaze = new Maze(5)
 testMaze.displayMaze()
 console.log(testMaze.mazeSeed)
 // console.log(testMaze.mazeArray)
