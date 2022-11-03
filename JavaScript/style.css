@@ -29,6 +29,10 @@ rect {
     transition: .25s;
 }
 
+path {
+    transition: .25s;
+}
+
 .lock {
     fill: dimgrey;
 }
