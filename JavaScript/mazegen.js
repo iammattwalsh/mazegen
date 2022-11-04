@@ -69,7 +69,6 @@ class Maze {
                 thisTileBuilt.addEventListener('click', e => {
                     if (!thisTile.lock && !e.ctrlKey) {
                         thisTile.rotCurrent += 1
-                        // thisTile.rotDiff = thisTile.rotCurrent - thisTile.rotCorrect
                         thisTile.rotUpdate()
                         thisTileBuilt.style.transform = `rotate(${thisTile.rotCurrent * 90}deg)`
                         this.checkMaze()
@@ -79,7 +78,6 @@ class Maze {
                     e.preventDefault()
                     if (!thisTile.lock && !e.ctrlKey) {
                         thisTile.rotCurrent -= 1
-                        // thisTile.rotDiff = thisTile.rotCurrent - thisTile.rotCorrect
                         thisTile.rotUpdate()
                         thisTileBuilt.style.transform = `rotate(${thisTile.rotCurrent * 90}deg)`
                         this.checkMaze()
@@ -133,18 +131,18 @@ class Maze {
             })
         })
         if (countCorrect === (this.width * this.height)) {
-            console.log('complete')
             this.complete = true
             this.tileArray.forEach(row => {
                 row.forEach(tile => {
                     tile.lock = true
                 })
                 Array.from(document.getElementsByClassName('pathfill')).forEach(el => {
-                    el.style.fill = 'deepskyblue'
+                    el.classList.add('complete')
+                })
+                Array.from(document.getElementsByClassName('tilebg')).forEach(el => {
+                    el.classList.remove('lock')
                 })
             })
-        } else {
-            console.log('incomplete')
         }
     }
     checkTileBlock () {
@@ -181,6 +179,20 @@ class Maze {
                 }
             }
         }
+    }
+    findConnected () {
+        // highlight connected sets of tiles - i.e. hover over tile holding button (shift?) and all connected tiles are highlighted
+        // may also be used for findLoops() method
+
+        // current plan:
+        // make array of connected tiles
+        // add event listener to each connected tile
+        // mouseover with shiftkey to highlight
+
+    }
+    findLoops () {
+        // highlight connected loops - i.e. four corner tiles connected to each other to form a square loop
+
     }
 }
 
@@ -311,6 +323,3 @@ let testMaze = new Maze(5,5,'2Y5luZVZa4pdYOjr')
 testMaze.displayMaze()
 console.log(testMaze.mazeSeed)
 // console.log(testMaze.mazeArray)
-
-// need ability to highlight connected sets of tiles - i.e. hover over tile holding button (shift?) and all connected tiles are highlighted
-// need ability to highlight connected loops - i.e. four corner tiles connected to each other to form a square loop
