@@ -37,6 +37,10 @@ path {
     fill: dimgrey;
 }
 
+.blocked {
+    fill: red;
+}
+
 .pathfill {
     fill: white;
 }

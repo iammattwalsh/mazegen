@@ -69,6 +69,8 @@ class Maze {
                 thisTileBuilt.addEventListener('click', e => {
                     if (!thisTile.lock && !e.ctrlKey) {
                         thisTile.rotCurrent += 1
+                        // thisTile.rotDiff = thisTile.rotCurrent - thisTile.rotCorrect
+                        thisTile.rotUpdate()
                         thisTileBuilt.style.transform = `rotate(${thisTile.rotCurrent * 90}deg)`
                         this.checkMaze()
                     }
@@ -77,6 +79,8 @@ class Maze {
                     e.preventDefault()
                     if (!thisTile.lock && !e.ctrlKey) {
                         thisTile.rotCurrent -= 1
+                        // thisTile.rotDiff = thisTile.rotCurrent - thisTile.rotCorrect
+                        thisTile.rotUpdate()
                         thisTileBuilt.style.transform = `rotate(${thisTile.rotCurrent * 90}deg)`
                         this.checkMaze()
                     }
@@ -86,20 +90,22 @@ class Maze {
                         thisTile.lock = !thisTile.lock
                         lockTarget = thisTile.lock
                         if (thisTile.lock) {
-                            thisTileBuilt.getElementsByTagName('rect')[0].setAttribute('class','lock')
+                            thisTileBuilt.getElementsByTagName('rect')[0].classList.add('lock')
                         } else {
-                            thisTileBuilt.getElementsByTagName('rect')[0].removeAttribute('class','lock')
+                            thisTileBuilt.getElementsByTagName('rect')[0].classList.remove('lock')
                         }
+                        this.checkTileBlock()
                     }
                 })
                 thisTileBuilt.addEventListener('mouseenter', e => {
                     if ((e.buttons === 1 || e.buttons === 2) && e.ctrlKey && !this.complete) {
                         thisTile.lock = lockTarget
                         if (thisTile.lock) {
-                            thisTileBuilt.getElementsByTagName('rect')[0].setAttribute('class','lock')
+                            thisTileBuilt.getElementsByTagName('rect')[0].classList.add('lock')
                         } else {
-                            thisTile.getElementsByTagName('rect')[0].removeAttribute('class','lock')
+                            thisTile.getElementsByTagName('rect')[0].classList.remove('lock')
                         }
+                        this.checkTileBlock()
                     }
                 })
                 gridHolder.appendChild(thisTileBuilt)
@@ -126,7 +132,6 @@ class Maze {
                 }
             })
         })
-        // console.log(countCorrect)
         if (countCorrect === (this.width * this.height)) {
             console.log('complete')
             this.complete = true
@@ -142,6 +147,41 @@ class Maze {
             console.log('incomplete')
         }
     }
+    checkTileBlock () {
+        // loop through rows
+        for (let row = 0; row < this.height; row ++) {
+            // loop through columns in row
+            for (let col = 0; col < this.width; col++) {
+                // set current tile to variable
+                let thisTile = this.tileArray[row][col]
+                // variable for number of blocked directions
+                let blockCount = 0
+                // put adjacent tile indices in array
+                let adjTiles = [[row, col -1],[row + 1, col],[row, col + 1],[row - 1, col]]
+                // loop through sides of tile to find openings
+                for (let dig = 0; dig < 4; dig ++) {
+                    // set variable for index of matching direction on adjacent tile
+                    let adjDig = dig - 2 < 0 ? dig + 2 : dig - 2
+                    // if the direction is open & the tile is locked & the adjacent tile is out of bounds, increment blockCount
+                    if (thisTile.binCurrent[dig] == 1 && thisTile.lock && (adjTiles[dig][0] < 0 || adjTiles[dig][0] >= this.height || adjTiles[dig][1] < 0 || adjTiles[dig][1] >= this.width)) {
+                        blockCount++
+                    // if the direction is open & the tile is locked & the adjacent tile does not have a matching opening & the adjacent tile is locked, increment blockCount
+                    } else if (thisTile.binCurrent[dig] == 1 && thisTile.lock && this.tileArray[adjTiles[dig][0]][adjTiles[dig][1]].binCurrent[adjDig] != 1 && this.tileArray[adjTiles[dig][0]][adjTiles[dig][1]].lock) {
+                        blockCount++
+                    }
+                    // set tile to blocked and add blocked class if blockCount indicates at least 1 block
+                    if (blockCount > 0) {
+                        thisTile.blocked = true
+                        thisTile.element.getElementsByTagName('rect')[0].classList.add('blocked')
+                    // set tile to unblocked and remove blocked class if blockCount indicates no blocks
+                    } else {
+                        thisTile.blocked = false
+                        thisTile.element.getElementsByTagName('rect')[0].classList.remove('blocked')
+                    }
+                }
+            }
+        }
+    }
 }
 
 class Tile {
@@ -150,26 +190,32 @@ class Tile {
         const tileValStraight = [5,10]
         const tileValCorner = [3,6,12,9]
         const tileValT = [7,14,13,11]
-        if (tileValEnd.includes(tileVal)) {
+        this.tileVal = tileVal
+        if (tileValEnd.includes(this.tileVal)) {
             this.type = 'end'
-            this.rotCorrect = tileValEnd.indexOf(tileVal)
+            this.rotCorrect = tileValEnd.indexOf(this.tileVal)
             this.paths = this.recipeEnd()
-        } else if (tileValStraight.includes(tileVal)) {
+        } else if (tileValStraight.includes(this.tileVal)) {
             this.type = 'straight'
-            this.rotCorrect = tileValStraight.indexOf(tileVal)
+            this.rotCorrect = tileValStraight.indexOf(this.tileVal)
             this.paths = this.recipeStraight()
-        } else if (tileValCorner.includes(tileVal)) {
+        } else if (tileValCorner.includes(this.tileVal)) {
             this.type = 'corner'
-            this.rotCorrect = tileValCorner.indexOf(tileVal)
+            this.rotCorrect = tileValCorner.indexOf(this.tileVal)
             this.paths = this.recipeCorner()
-        } else if (tileValT.includes(tileVal)) {
+        } else if (tileValT.includes(this.tileVal)) {
             this.type = 't'
-            this.rotCorrect = tileValT.indexOf(tileVal)
+            this.rotCorrect = tileValT.indexOf(this.tileVal)
             this.paths = this.recipeT()
         }
         this.rotCurrent = Math.floor(maze.rng() * 4)
         this.lock = false
-        this.element = null
+        this.blocked = false
+        this.element
+        this.binCorrect
+        this.rotDiff
+        this.binCurrent
+        this.rotUpdate()
     }
     build () {
         let newTile = this.recipeBasic()
@@ -177,6 +223,17 @@ class Tile {
             newTile.appendChild(path)
         })
         return newTile
+    }
+    rotUpdate () {
+        this.rotDiff = this.rotCurrent - this.rotCorrect
+        while (this.rotDiff > 3) {
+            this.rotDiff -= 4
+        }
+        while (this.rotDiff < 0) {
+            this.rotDiff += 4
+        }
+        this.binCorrect = this.tileVal.toString(2).padStart(4,'0')
+        this.binCurrent = this.binCorrect.slice(this.rotDiff) + this.binCorrect.slice(0,this.rotDiff)
     }
     recipeBasic () {
         let newTile = document.createElementNS('http://www.w3.org/2000/svg','svg')
@@ -250,14 +307,10 @@ class Tile {
 // y.displayMaze()
 // z.displayMaze()
 
-let testMaze = new Maze(5)
+let testMaze = new Maze(5,5,'2Y5luZVZa4pdYOjr')
 testMaze.displayMaze()
 console.log(testMaze.mazeSeed)
 // console.log(testMaze.mazeArray)
 
-
-// tNTPxUGb12vCRnez -- seed that previously contained 4-way intersection
-
 // need ability to highlight connected sets of tiles - i.e. hover over tile holding button (shift?) and all connected tiles are highlighted
-// need ability to highlight tiles locked in invalid positions - not incorrect positions, but invalid e.g. an opening touching a wall
 // need ability to highlight connected loops - i.e. four corner tiles connected to each other to form a square loop
