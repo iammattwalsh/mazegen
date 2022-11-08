@@ -16,6 +16,10 @@ svg {
     transition: .25s;
 }
 
+svg:focus {
+    outline: 0px;
+}
+
 rect {
     stroke: black;
     stroke-width: 2px;
