@@ -28,15 +28,8 @@ class Maze {
         this.genBlank()
         this.posStart = [Math.floor(this.rng() * this.width),Math.floor(this.rng() * this.height)]
         this.recursiveCarve(this.posStart)
-
-
-
-
-
-
-
-
         this.connectedTiles = []
+        this.connectedTilesAreLoop = false
     }
     genBlank () {
         for (let y = 0; y < this.height; y++) {
@@ -201,20 +194,27 @@ class Maze {
     }
     findConnectedRun (tile) {
         this.clearConnected()
-        this.connectedTiles = []
         this.findConnected(tile)
+        this.findLoops()
         this.connectedTiles.forEach(tile => {
             if (!this.complete) {
-                tile.element.getElementsByClassName('pathfill')[0].classList.add('highlighted')
+                if (this.connectedTilesAreLoop) {
+                    tile.element.getElementsByClassName('pathfill')[0].classList.add('loop')
+                } else {
+                    tile.element.getElementsByClassName('pathfill')[0].classList.add('highlighted')
+                }
             }
         })
     }
     clearConnected () {
+        this.connectedTilesAreLoop = false
         this.connectedTiles.forEach(tile => {
             tile.element.getElementsByClassName('pathfill')[0].classList.remove('highlighted')
+            tile.element.getElementsByClassName('pathfill')[0].classList.remove('loop')
         })
+        this.connectedTiles = []
     }
-    findConnected (tile) {
+    findConnected (tile, prevDig = null) {
         let adjTilesIndices = [
             [tile.indices[0], tile.indices[1] - 1],
             [tile.indices[0] + 1, tile.indices[1]],
@@ -224,21 +224,22 @@ class Maze {
         if (!this.connectedTiles.includes(tile)) {
             this.connectedTiles.push(tile)
         }
+        console.log(tile)
         for (let dig = 0; dig < 4; dig++) {
+            console.log(`${tile.indices} -- ${dig}`)
             let adjDig = dig - 2 < 0 ? dig + 2 : dig - 2
-            if (tile.binCurrent[dig] == 1 && adjTilesIndices[dig][0] >= 0 && adjTilesIndices[dig][0] < this.height && adjTilesIndices[dig][1] >= 0 && adjTilesIndices[dig][1] < this.width) {
+            if (tile.binCurrent[dig] == 1 && adjTilesIndices[dig][0] >= 0 && adjTilesIndices[dig][0] < this.height && adjTilesIndices[dig][1] >= 0 && adjTilesIndices[dig][1] < this.width && prevDig != dig) {
+                console.log(`dig: ${dig} adjDig: ${adjDig}`)
                 let nextTile = this.tileArray[adjTilesIndices[dig][0]][adjTilesIndices[dig][1]]
                 if (nextTile.binCurrent[adjDig] == 1) {
                     if (!this.connectedTiles.includes(nextTile)) {
-                        this.findConnected(nextTile)
+                        this.findConnected(nextTile, adjDig)
+                    } else {
+                        this.connectedTilesAreLoop = true
                     }
                 }
             }
         }
-    }
-    findLoops () {
-        // highlight connected loops - e.g. four corner tiles connected to each other to form a square loop
-
     }
     connectedToSource () {
         // highlight source and all connected to it
@@ -372,8 +373,13 @@ class Tile {
 
 //2Y5luZVZa4pdYOjr
 
-let testMaze = new Maze(5,5, 'Ca2zGqxCUoY4VCWK')
-// let testMaze = new Maze(25)
-testMaze.displayMaze()
-console.log(testMaze.mazeSeed)
-// console.log(testMaze.mazeArray)
+// let testMaze = new Maze(5,5,'Ca2zGqxCUoY4VCWK')
+// // let testMaze = new Maze(25)
+// testMaze.displayMaze()
+// console.log(testMaze.mazeSeed)
+// // console.log(testMaze.mazeArray)
+
+
+let testMaze2 = new Maze(15,15,'rzabuu3wPNZp54FD')
+testMaze2.displayMaze()
+console.log(testMaze2.mazeSeed)
