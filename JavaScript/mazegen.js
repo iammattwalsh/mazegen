@@ -30,6 +30,9 @@ class Maze {
         this.recursiveCarve(this.posStart)
         this.connectedTiles = []
         this.connectedTilesAreLoop = false
+        this.sourceTile
+        this.connectedTilesToSource = []
+        this.connectedTilesToSourceAreLoop = false
     }
     genBlank () {
         for (let y = 0; y < this.height; y++) {
@@ -74,6 +77,7 @@ class Maze {
                         thisTile.rotCurrent += 1
                         thisTile.rotUpdate()
                         thisTileBuilt.style.transform = `rotate(${thisTile.rotCurrent * 90}deg)`
+                        this.findConnectedRun(this.sourceTile, true)
                         this.checkMaze()
                     }
                 })
@@ -83,6 +87,7 @@ class Maze {
                         thisTile.rotCurrent -= 1
                         thisTile.rotUpdate()
                         thisTileBuilt.style.transform = `rotate(${thisTile.rotCurrent * 90}deg)`
+                        this.findConnectedRun(this.sourceTile, true)
                         this.checkMaze()
                     }
                 })
@@ -121,6 +126,8 @@ class Maze {
             })
             this.tileArray.push(thisRow)
         })
+        this.sourceTile = this.tileArray[this.posStart[0]][this.posStart[1]]
+        this.sourceTile.element.getElementsByClassName('pathfill')[0].classList.add('complete')
     }
     checkMaze () {
         let countCorrect = 0
@@ -192,57 +199,86 @@ class Maze {
             })
         })
     }
-    findConnectedRun (tile) {
-        this.clearConnected()
-        this.findConnected(tile)
-        this.findLoops()
-        this.connectedTiles.forEach(tile => {
-            if (!this.complete) {
-                if (this.connectedTilesAreLoop) {
+    findConnectedRun (tile, sourceMode = false) {
+        this.clearConnected(sourceMode)
+        this.findConnected(tile, sourceMode)
+        if (sourceMode) {
+            this.connectedTilesToSource.forEach(tile => {
+                if (this.connectedTilesToSourceAreLoop) {
                     tile.element.getElementsByClassName('pathfill')[0].classList.add('loop')
                 } else {
-                    tile.element.getElementsByClassName('pathfill')[0].classList.add('highlighted')
+                    tile.element.getElementsByClassName('pathfill')[0].classList.add('complete')
                 }
-            }
-        })
+            })
+        } else {
+            this.connectedTiles.forEach(tile => {
+                if (!this.complete) {
+                    if (this.connectedTilesAreLoop) {
+                        tile.element.getElementsByClassName('pathfill')[0].classList.add('loop')
+                    } else if (this.connectedTiles.includes(this.sourceTile)) {
+                        tile.element.getElementsByClassName('pathfill')[0].classList.add('complete')
+                    } else {
+                        tile.element.getElementsByClassName('pathfill')[0].classList.add('highlighted')
+                    }
+                }
+            })
+        }
     }
-    clearConnected () {
-        this.connectedTilesAreLoop = false
-        this.connectedTiles.forEach(tile => {
-            tile.element.getElementsByClassName('pathfill')[0].classList.remove('highlighted')
-            tile.element.getElementsByClassName('pathfill')[0].classList.remove('loop')
-        })
-        this.connectedTiles = []
+    clearConnected (sourceMode) {
+        if (sourceMode) {
+            this.connectedTilesToSourceAreLoop = false
+            this.connectedTilesToSource.forEach(tile => {
+                tile.element.getElementsByClassName('pathfill')[0].classList.remove('loop')
+                tile.element.getElementsByClassName('pathfill')[0].classList.remove('complete')
+            })
+            this.connectedTilesToSource = [this.sourceTile]
+        } else {
+            this.connectedTilesAreLoop = false
+            this.connectedTiles.forEach(tile => {
+                tile.element.getElementsByClassName('pathfill')[0].classList.remove('highlighted')
+                tile.element.getElementsByClassName('pathfill')[0].classList.remove('loop')
+                tile.element.getElementsByClassName('pathfill')[0].classList.remove('complete')
+            })
+            this.connectedTiles = []
+        }
     }
-    findConnected (tile, prevDig = null) {
+    findConnected (tile, sourceMode, prevDig = null) {
         let adjTilesIndices = [
             [tile.indices[0], tile.indices[1] - 1],
             [tile.indices[0] + 1, tile.indices[1]],
             [tile.indices[0], tile.indices[1] + 1],
             [tile.indices[0] - 1, tile.indices[1]],
         ]
-        if (!this.connectedTiles.includes(tile)) {
-            this.connectedTiles.push(tile)
+        if (sourceMode) {
+            if (!this.connectedTilesToSource.includes(tile)) {
+                this.connectedTilesToSource.push(tile)
+            }
+        } else {
+            if (!this.connectedTiles.includes(tile)) {
+                this.connectedTiles.push(tile)
+            }
         }
-        console.log(tile)
         for (let dig = 0; dig < 4; dig++) {
-            console.log(`${tile.indices} -- ${dig}`)
             let adjDig = dig - 2 < 0 ? dig + 2 : dig - 2
             if (tile.binCurrent[dig] == 1 && adjTilesIndices[dig][0] >= 0 && adjTilesIndices[dig][0] < this.height && adjTilesIndices[dig][1] >= 0 && adjTilesIndices[dig][1] < this.width && prevDig != dig) {
-                console.log(`dig: ${dig} adjDig: ${adjDig}`)
                 let nextTile = this.tileArray[adjTilesIndices[dig][0]][adjTilesIndices[dig][1]]
                 if (nextTile.binCurrent[adjDig] == 1) {
-                    if (!this.connectedTiles.includes(nextTile)) {
-                        this.findConnected(nextTile, adjDig)
+                    if (sourceMode) {
+                        if (!this.connectedTilesToSource.includes(nextTile)) {
+                            this.findConnected(nextTile, sourceMode, adjDig)
+                        } else {
+                            this.connectedTilesToSourceAreLoop = true
+                        }
                     } else {
-                        this.connectedTilesAreLoop = true
+                        if (!this.connectedTiles.includes(nextTile)) {
+                            this.findConnected(nextTile, sourceMode, adjDig)
+                        } else {
+                            this.connectedTilesAreLoop = true
+                        }
                     }
                 }
             }
         }
-    }
-    connectedToSource () {
-        // highlight source and all connected to it
     }
 }
 
