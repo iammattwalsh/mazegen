@@ -36,7 +36,7 @@ class Maze {
 
 
 
-        // this.connectedTiles = []
+        this.connectedTiles = []
     }
     genBlank () {
         for (let y = 0; y < this.height; y++) {
@@ -106,6 +106,7 @@ class Maze {
                     }
                 })
                 thisTileBuilt.addEventListener('mouseenter', e => {
+                    thisTileBuilt.focus()
                     if ((e.buttons === 1 || e.buttons === 2) && e.ctrlKey && !this.complete) {
                         thisTile.lock = lockTarget
                         if (thisTile.lock) {
@@ -114,6 +115,13 @@ class Maze {
                             thisTileBuilt.getElementsByTagName('rect')[0].classList.remove('lock')
                         }
                         this.checkTileBlock()
+                    } else if (e.shiftKey) {
+                        this.findConnectedRun(thisTile)
+                    }
+                })
+                thisTileBuilt.addEventListener('keydown', e => {
+                    if (e.shiftKey) {
+                        this.findConnectedRun(thisTile)
                     }
                 })
                 gridHolder.appendChild(thisTileBuilt)
@@ -142,6 +150,7 @@ class Maze {
         })
         if (countCorrect === (this.width * this.height)) {
             this.complete = true
+            this.clearConnected()
             this.tileArray.forEach(row => {
                 row.forEach(tile => {
                     tile.lock = true
@@ -190,19 +199,49 @@ class Maze {
             })
         })
     }
-    findConnected () {
-        // highlight connected sets of tiles - i.e. hover over tile holding button (shift?) and all connected tiles are highlighted
-        // may also be used for findLoops() method
-
-        // current plan:
-        // make array of connected tiles
-        // add event listener to each connected tile
-        // mouseover with shiftkey to highlight
-
+    findConnectedRun (tile) {
+        this.clearConnected()
+        this.connectedTiles = []
+        this.findConnected(tile)
+        this.connectedTiles.forEach(tile => {
+            if (!this.complete) {
+                tile.element.getElementsByClassName('pathfill')[0].classList.add('highlighted')
+            }
+        })
+    }
+    clearConnected () {
+        this.connectedTiles.forEach(tile => {
+            tile.element.getElementsByClassName('pathfill')[0].classList.remove('highlighted')
+        })
+    }
+    findConnected (tile) {
+        let adjTilesIndices = [
+            [tile.indices[0], tile.indices[1] - 1],
+            [tile.indices[0] + 1, tile.indices[1]],
+            [tile.indices[0], tile.indices[1] + 1],
+            [tile.indices[0] - 1, tile.indices[1]],
+        ]
+        if (!this.connectedTiles.includes(tile)) {
+            this.connectedTiles.push(tile)
+        }
+        for (let dig = 0; dig < 4; dig++) {
+            let adjDig = dig - 2 < 0 ? dig + 2 : dig - 2
+            if (tile.binCurrent[dig] == 1 && adjTilesIndices[dig][0] >= 0 && adjTilesIndices[dig][0] < this.height && adjTilesIndices[dig][1] >= 0 && adjTilesIndices[dig][1] < this.width) {
+                let nextTile = this.tileArray[adjTilesIndices[dig][0]][adjTilesIndices[dig][1]]
+                if (nextTile.binCurrent[adjDig] == 1) {
+                    if (!this.connectedTiles.includes(nextTile)) {
+                        this.findConnected(nextTile)
+                    }
+                }
+            }
+        }
     }
     findLoops () {
         // highlight connected loops - e.g. four corner tiles connected to each other to form a square loop
 
+    }
+    connectedToSource () {
+        // highlight source and all connected to it
     }
 }
 
@@ -260,6 +299,7 @@ class Tile {
     }
     recipeBase () {
         let newTile = document.createElementNS('http://www.w3.org/2000/svg','svg')
+        newTile.setAttribute('tabindex','0')
         const tileBG = document.createElementNS('http://www.w3.org/2000/svg','rect')
         tileBG.setAttribute('width','40px')
         tileBG.setAttribute('height','40px')
@@ -330,7 +370,9 @@ class Tile {
 // y.displayMaze()
 // z.displayMaze()
 
-let testMaze = new Maze(5,5,'2Y5luZVZa4pdYOjr')
+//2Y5luZVZa4pdYOjr
+
+let testMaze = new Maze(5,5, 'Ca2zGqxCUoY4VCWK')
 // let testMaze = new Maze(25)
 testMaze.displayMaze()
 console.log(testMaze.mazeSeed)
