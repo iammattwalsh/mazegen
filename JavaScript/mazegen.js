@@ -127,7 +127,7 @@ class Maze {
             this.tileArray.push(thisRow)
         })
         this.sourceTile = this.tileArray[this.posStart[0]][this.posStart[1]]
-        this.sourceTile.element.getElementsByClassName('pathfill')[0].classList.add('complete')
+        this.findConnectedRun(this.sourceTile, true)
     }
     checkMaze () {
         let countCorrect = 0
@@ -416,6 +416,6 @@ class Tile {
 // // console.log(testMaze.mazeArray)
 
 
-let testMaze2 = new Maze(15,15,'rzabuu3wPNZp54FD')
+let testMaze2 = new Maze(25)
 testMaze2.displayMaze()
 console.log(testMaze2.mazeSeed)
