@@ -37,7 +37,6 @@ path {
 
 .pathstroke {
     stroke: deepskyblue;
-    /* filter: drop-shadow(0 0 10px deepskyblue); */
     stroke-width: 4px;
     fill: transparent;
 }
@@ -48,7 +47,6 @@ path {
 
 .highlighted {
     fill: lime;
-    /* filter: drop-shadow(0 0 10px lime) */
 }
 
 .complete {

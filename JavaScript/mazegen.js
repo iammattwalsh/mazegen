@@ -338,11 +338,13 @@ class Maze {
 
 class Tile {
     constructor (tileVal, maze) {
+        // sets arrays that contain values corresponding to different tile types
         const tileValEnd = [1,2,4,8]
         const tileValStraight = [5,10]
         const tileValCorner = [3,6,12,9]
         const tileValT = [7,14,13,11]
         this.tileVal = tileVal
+        // checks/saves what type the tile is, saves the correct rotation, and assigns the recipe method corresponding to tile type
         if (tileValEnd.includes(this.tileVal)) {
             this.type = 'end'
             this.rotCorrect = tileValEnd.indexOf(this.tileVal)
@@ -360,17 +362,20 @@ class Tile {
             this.rotCorrect = tileValT.indexOf(this.tileVal)
             this.paths = this.recipeT()
         }
+        // sets a starting rotation using seeded randomization
         this.rotCurrent = Math.floor(maze.rng() * 4)
         this.lock = false
         this.blocked = false
         this.element
         this.indices
-        this.binCorrect
+        // converts tilVal to binary for use in checking connections
+        this.binCorrect = this.tileVal.toString(2).padStart(4,'0')
         this.rotDiff
         this.binCurrent
         this.rotUpdate()
     }
     build () {
+        // builds and returns a tile using the base recipe and the recipe chosen above
         let newTile = this.recipeBase()
         this.paths.forEach(path => {
             newTile.appendChild(path)
@@ -378,6 +383,7 @@ class Tile {
         return newTile
     }
     rotUpdate () {
+        // sets variable for difference between current and correct rotation
         this.rotDiff = this.rotCurrent - this.rotCorrect
         while (this.rotDiff > 3) {
             this.rotDiff -= 4
@@ -385,7 +391,7 @@ class Tile {
         while (this.rotDiff < 0) {
             this.rotDiff += 4
         }
-        this.binCorrect = this.tileVal.toString(2).padStart(4,'0')
+        // converts current tileVal factoring rotation to binary for use in checking connections
         this.binCurrent = this.binCorrect.slice(this.rotDiff) + this.binCorrect.slice(0,this.rotDiff)
     }
     recipeBase () {
@@ -449,22 +455,17 @@ class Tile {
     }
 }
 
-// let x = new Maze(25,25,0)
-// let y = new Maze(10)
-// let z = new Maze(75,75)
+// // generates a maze using 1 argument (width)
+// // height will automatically match width and seed will be randomly generated
+// let example1 = new Maze(10)
 
-// console.log(x.mazeArray)
-// console.log(y.mazeArray)
-// console.log(z.mazeArray)
+// // generates a maze using 2 arguments (width, height)
+// // seed will be randomly generated
+// let example2 = new Maze(10,10)
 
-// x.displayMaze()
-// y.displayMaze()
-// z.displayMaze()
-
-//2Y5luZVZa4pdYOjr
+// // generates a maze using all 3 arguments
+// let example3 = new Maze(10,10,'seed string')
 
 let testMaze = new Maze(5)
-// let testMaze = new Maze(25)
 testMaze.displayMaze()
 console.log(testMaze.mazeSeed)
-// console.log(testMaze.mazeArray)
