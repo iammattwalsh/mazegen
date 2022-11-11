@@ -21,9 +21,9 @@ svg:focus {
 }
 
 rect {
-    stroke: black;
+    stroke: white;
     stroke-width: 2px;
-    fill: darkgrey;
+    fill: black;
     transition: .25s;
 }
 
@@ -32,27 +32,40 @@ path {
 }
 
 .pathfill {
-    fill: white;
+    fill: black;
 }
 
 .pathstroke {
-    stroke: rebeccapurple;
+    stroke: deepskyblue;
+    /* filter: drop-shadow(0 0 10px deepskyblue); */
     stroke-width: 4px;
     fill: transparent;
 }
 
 .lock {
-    fill: dimgrey;
+    fill: darkorchid;
 }
 
 .highlighted {
-    fill: lightgreen;
+    fill: lime;
+    /* filter: drop-shadow(0 0 10px lime) */
 }
 
 .complete {
-    fill: deepskyblue;
+    fill: white;
+    filter: drop-shadow(0 0 10px white);
 }
 
 .blocked, .loop {
-    fill: palevioletred;
+    animation: warning .25s ease-in-out 0s infinite alternate;
+}
+
+@keyframes warning {
+    from {
+        fill: maroon;
+    }
+    to {
+        fill: crimson;
+    }
+    
 }
