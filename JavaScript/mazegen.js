@@ -82,20 +82,18 @@ class Maze {
         this.mazeArray.forEach(row => {
             let thisRow = []
             row.forEach(tile => {
-                // creates new tiles, builds them, adds them to the tile object, and adds the tile object to its row array within tileArray
+                // creates new tiles and adds the tile object to its row array within tileArray
                 let thisTile = new Tile(tile,this)
-                let thisTileBuilt = thisTile.build()
-                thisTile.element = thisTileBuilt
                 thisRow.push(thisTile)
                 thisTile.indices = [this.mazeArray.indexOf(row), thisRow.indexOf(thisTile)]
                 // adds clockwise rotation of unlocked tiles when left-clicked
-                thisTileBuilt.addEventListener('click', e => {
+                thisTile.element.addEventListener('click', e => {
                     // limits operation to unlocked tiles, and only when the ctrl key is not pressed
                     if (!thisTile.lock && !e.ctrlKey) {
                         // adjusts rotation internally and visually
                         thisTile.rotCurrent += 1
                         thisTile.rotUpdate()
-                        thisTileBuilt.style.transform = `rotate(${thisTile.rotCurrent * 90}deg)`
+                        thisTile.element.style.transform = `rotate(${thisTile.rotCurrent * 90}deg)`
                         // checks to see if the current tile is connected to the source tile
                         this.findConnectedRun(this.sourceTile, true)
                         // checks to see if the maze is complete
@@ -103,45 +101,45 @@ class Maze {
                     }
                 })
                 // same as above but for counter-clockwise rotation when right-clicked
-                thisTileBuilt.addEventListener('contextmenu', e => {
+                thisTile.element.addEventListener('contextmenu', e => {
                     e.preventDefault()
                     if (!thisTile.lock && !e.ctrlKey) {
                         thisTile.rotCurrent -= 1
                         thisTile.rotUpdate()
-                        thisTileBuilt.style.transform = `rotate(${thisTile.rotCurrent * 90}deg)`
+                        thisTile.element.style.transform = `rotate(${thisTile.rotCurrent * 90}deg)`
                         this.findConnectedRun(this.sourceTile, true)
                         this.checkMaze()
                     }
                 })
                 // allows tile to be locked/unlocked and sets that status to a variable for use in the next event listener
-                thisTileBuilt.addEventListener('mousedown', e => {
+                thisTile.element.addEventListener('mousedown', e => {
                     // limits operation to when the ctrl key is pressed and the maze is incomplete
                     if (e.ctrlKey && !this.complete) {
                         thisTile.lock = !thisTile.lock
                         lockTarget = thisTile.lock
                         // adjusts style to show lock status
                         if (thisTile.lock) {
-                            thisTileBuilt.getElementsByTagName('rect')[0].classList.add('lock')
+                            thisTile.element.getElementsByTagName('rect')[0].classList.add('lock')
                         } else {
-                            thisTileBuilt.getElementsByTagName('rect')[0].classList.remove('lock')
+                            thisTile.element.getElementsByTagName('rect')[0].classList.remove('lock')
                         }
                         // checks if any locked tiles are blocked by this tile being locked
                         this.checkTileBlock()
                     }
                 })
                 // adds press-and-hold locking/unlocking to above event listener and adds shift-hover to show run of tiles connected to the tile currently hovered
-                thisTileBuilt.addEventListener('mouseenter', e => {
+                thisTile.element.addEventListener('mouseenter', e => {
                     // sets browser focus to tile being hovered
-                    thisTileBuilt.focus()
+                    thisTile.element.focus()
                     // check if the mouse is right or left clicked, ctrl key is pressed, and the maze is incomplete when hovered
                     if ((e.buttons === 1 || e.buttons === 2) && e.ctrlKey && !this.complete) {
                         // uses variable set above to assign lock status
                         thisTile.lock = lockTarget
                         // adjusts style to show lock status
                         if (thisTile.lock) {
-                            thisTileBuilt.getElementsByTagName('rect')[0].classList.add('lock')
+                            thisTile.element.getElementsByTagName('rect')[0].classList.add('lock')
                         } else {
-                            thisTileBuilt.getElementsByTagName('rect')[0].classList.remove('lock')
+                            thisTile.element.getElementsByTagName('rect')[0].classList.remove('lock')
                         }
                         // checks if any locked tiles are blocked by this tile being locked
                         this.checkTileBlock()
@@ -151,13 +149,13 @@ class Maze {
                     }
                 })
                 // run findConnectedRun against the currently hovered tile (set to focus in above method)
-                thisTileBuilt.addEventListener('keydown', e => {
+                thisTile.element.addEventListener('keydown', e => {
                     if (e.shiftKey) {
                         this.findConnectedRun(thisTile)
                     }
                 })
                 // adds tile to DOM
-                gridHolder.appendChild(thisTileBuilt)
+                gridHolder.appendChild(thisTile.element)
             })
             // adds tile to tileArray
             this.tileArray.push(thisRow)
@@ -338,6 +336,8 @@ class Maze {
 
 class Tile {
     constructor (tileVal, maze) {
+        // converts tilVal to binary for use in checking connections
+        this.binCorrect = tileVal.toString(2).padStart(4,'0')
         // sets arrays that contain values corresponding to different tile types
         const tileValEnd = [1,2,4,8]
         const tileValStraight = [5,10]
@@ -368,19 +368,19 @@ class Tile {
         this.blocked = false
         this.element
         this.indices
-        // converts tilVal to binary for use in checking connections
-        this.binCorrect = this.tileVal.toString(2).padStart(4,'0')
         this.rotDiff
         this.binCurrent
         this.rotUpdate()
+        this.build()
     }
     build () {
-        // builds and returns a tile using the base recipe and the recipe chosen above
+        // builds a tile using the base recipe and the recipe chosen above
         let newTile = this.recipeBase()
         this.paths.forEach(path => {
             newTile.appendChild(path)
         })
-        return newTile
+        // assigns built tile as attribute
+        this.element = newTile
     }
     rotUpdate () {
         // sets variable for difference between current and correct rotation
@@ -391,7 +391,7 @@ class Tile {
         while (this.rotDiff < 0) {
             this.rotDiff += 4
         }
-        // converts current tileVal factoring rotation to binary for use in checking connections
+        // sets current binary representation taking rotation into account
         this.binCurrent = this.binCorrect.slice(this.rotDiff) + this.binCorrect.slice(0,this.rotDiff)
     }
     recipeBase () {
@@ -466,6 +466,6 @@ class Tile {
 // // generates a maze using all 3 arguments
 // let example3 = new Maze(10,10,'seed string')
 
-let testMaze = new Maze(5)
+let testMaze = new Maze(5,5,'mVHcfpFZ06Gxbbwy')
 testMaze.displayMaze()
 console.log(testMaze.mazeSeed)
